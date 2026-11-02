@@ -5,31 +5,31 @@
 
 {% block content %}
 
-<div class="page-header">
+<div class="page-heading">
     <h1>Dashboard</h1>
     <p>Overview of your enterprise management system.</p>
 </div>
 
 <div class="dashboard-grid">
 
-    <div class="dashboard-card">
+    <div class="stat-card">
         <h3>Total Employees</h3>
-        <p>{{ employee_count }}</p>
+        <h1>{{ employee_count }}</h1>
     </div>
 
-    <div class="dashboard-card">
+    <div class="stat-card">
         <h3>Pending Requests</h3>
-        <p>{{ pending_requests }}</p>
+        <h1>{{ pending_requests }}</h1>
     </div>
 
-    <div class="dashboard-card">
+    <div class="stat-card">
         <h3>Total Candidates</h3>
-        <p>{{ candidate_count }}</p>
+        <h1>{{ candidate_count }}</h1>
     </div>
 
-    <div class="dashboard-card">
+    <div class="stat-card">
         <h3>Transactions</h3>
-        <p>{{ transaction_count }}</p>
+        <h1>{{ transaction_count }}</h1>
     </div>
 
 </div>

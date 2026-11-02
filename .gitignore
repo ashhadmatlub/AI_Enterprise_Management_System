@@ -1,23 +1,23 @@
 # Python
-# __pycache__/
-# *.py[cod]
+__pycache__/
+*.py[cod]
 *.pyo
 
-# # Virtual environment
-# venv/
-# .venv/
+# Virtual environment
+venv/
+.venv/
 
 # Environment secrets
 .env
 
 # Django
-# db.sqlite3
-# staticfiles/
-# media/
+db.sqlite3
+staticfiles/
+media/
 
 # Editor
-# .vscode/
-# .idea/
+.vscode/
+.idea/
 
 # Operating system
 .DS_Store
