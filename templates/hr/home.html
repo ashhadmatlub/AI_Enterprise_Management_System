@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}HR Dashboard | AEMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-2">
+
+    <!-- Messages Flash Notifications -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Page Header & Quick Actions -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold mb-1">Human Resources</h1>
+            <p class="text-muted mb-0">
+                Workforce management, position quotas, requests, task tracking, and training.
+            </p>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a href="{% url 'hr:employee_create' %}" class="btn btn-primary btn-sm">
+                + Add Employee
+            </a>
+            <a href="{% url 'hr:position_create' %}" class="btn btn-outline-primary btn-sm">
+                + Add Position
+            </a>
+            <a href="{% url 'hr:request_create' %}" class="btn btn-outline-warning btn-sm">
+                + Submit Request
+            </a>
+            <a href="{% url 'hr:task_create' %}" class="btn btn-outline-info btn-sm">
+                + Assign Task
+            </a>
+        </div>
+    </div>
+
+    <!-- Dashboard Statistics Metrics -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-2">
+            <div class="card shadow-sm border-0 border-start border-primary border-4 p-3 h-100">
+                <h6 class="text-muted small text-uppercase fw-bold mb-1">Total Staff</h6>
+                <h2 class="fw-bold text-primary mb-0">{{ total_employees }}</h2>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-2">
+            <div class="card shadow-sm border-0 border-start border-success border-4 p-3 h-100">
+                <h6 class="text-muted small text-uppercase fw-bold mb-1">Active Staff</h6>
+                <h2 class="fw-bold text-success mb-0">{{ active_employees }}</h2>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-2">
+            <div class="card shadow-sm border-0 border-start border-warning border-4 p-3 h-100">
+                <h6 class="text-muted small text-uppercase fw-bold mb-1">Pending Requests</h6>
+                <h2 class="fw-bold text-warning mb-0">{{ pending_requests }}</h2>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-2">
+            <div class="card shadow-sm border-0 border-start border-info border-4 p-3 h-100">
+                <h6 class="text-muted small text-uppercase fw-bold mb-1">Total Tasks</h6>
+                <h2 class="fw-bold text-info mb-0">{{ total_tasks }}</h2>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-2">
+            <div class="card shadow-sm border-0 border-start border-dark border-4 p-3 h-100">
+                <h6 class="text-muted small text-uppercase fw-bold mb-1">Active Roles</h6>
+                <h2 class="fw-bold text-dark mb-0">{{ total_positions }}</h2>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-2">
+            <div class="card shadow-sm border-0 border-start border-secondary border-4 p-3 h-100">
+                <h6 class="text-muted small text-uppercase fw-bold mb-1">Trainings</h6>
+                <h2 class="fw-bold text-secondary mb-0">{{ active_trainings }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- HR Management Modules Navigation -->
+    <h4 class="fw-bold mb-3">HR Modules</h4>
+
+    <div class="row g-3">
+        <!-- 1. Employee Management -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm border-0 h-100 p-3 d-flex flex-column justify-content-between">
+                <div>
+                    <h5 class="fw-bold text-primary">Employee Management</h5>
+                    <p class="text-muted small">
+                        View employee directory, profiles, departments, salaries, and manage employee records.
+                    </p>
+                </div>
+                <div class="d-flex gap-2 mt-3">
+                    <a href="{% url 'hr:employee_list' %}" class="btn btn-outline-primary btn-sm flex-grow-1">
+                        View Directory &rarr;
+                    </a>
+                    <a href="{% url 'hr:employee_create' %}" class="btn btn-primary btn-sm">
+                        + Add
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Job Positions -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm border-0 h-100 p-3 d-flex flex-column justify-content-between">
+                <div>
+                    <h5 class="fw-bold text-dark">Job Positions</h5>
+                    <p class="text-muted small">
+                        Define roles, departments, min/max headcount capacity, and reporting hierarchy.
+                    </p>
+                </div>
+                <div class="d-flex gap-2 mt-3">
+                    <a href="{% url 'hr:positions' %}" class="btn btn-outline-secondary btn-sm flex-grow-1">
+                        View Positions &rarr;
+                    </a>
+                    <a href="{% url 'hr:position_create' %}" class="btn btn-secondary btn-sm">
+                        + Add
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Employee Requests -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm border-0 h-100 p-3 d-flex flex-column justify-content-between">
+                <div>
+                    <h5 class="fw-bold text-warning">Employee Requests</h5>
+                    <p class="text-muted small">
+                        Evaluate leave, equipment, and reimbursement requests. Approve or reject with one click.
+                    </p>
+                </div>
+                <div class="d-flex gap-2 mt-3">
+                    <a href="{% url 'hr:request_list' %}" class="btn btn-outline-warning btn-sm flex-grow-1">
+                        Manage Requests &rarr;
+                    </a>
+                    <a href="{% url 'hr:request_create' %}" class="btn btn-warning btn-sm">
+                        + Submit
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Task Tracking -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm border-0 h-100 p-3 d-flex flex-column justify-content-between">
+                <div>
+                    <h5 class="fw-bold text-info">Task Tracking</h5>
+                    <p class="text-muted small">
+                        Assign tasks, track due dates, and update progress: To Do, In Progress, Completed.
+                    </p>
+                </div>
+                <div class="d-flex gap-2 mt-3">
+                    <a href="{% url 'hr:task_list' %}" class="btn btn-outline-info btn-sm flex-grow-1">
+                        View Tasks &rarr;
+                    </a>
+                    <a href="{% url 'hr:task_create' %}" class="btn btn-info text-white btn-sm">
+                        + Assign
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Training & Development -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm border-0 h-100 p-3 d-flex flex-column justify-content-between">
+                <div>
+                    <h5 class="fw-bold text-success">Training & Development</h5>
+                    <p class="text-muted small">
+                        Organize corporate training programs and enroll employees to track skill progress.
+                    </p>
+                </div>
+                <div class="d-flex gap-2 mt-3">
+                    <a href="{% url 'hr:training_list' %}" class="btn btn-outline-success btn-sm flex-grow-1">
+                        View Programs &rarr;
+                    </a>
+                    <a href="{% url 'hr:training_create' %}" class="btn btn-success btn-sm">
+                        + Program
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

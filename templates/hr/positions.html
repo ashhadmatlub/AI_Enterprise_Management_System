@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Job Positions | AEMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-2">
+
+    <!-- Messages Flash Notifications -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold mb-1">Job Positions</h1>
+            <p class="text-muted mb-0">
+                Manage organizational roles, hierarchy, and approved headcount limits.
+            </p>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a href="{% url 'hr:home' %}" class="btn btn-outline-secondary btn-sm">
+                &larr; HR Dashboard
+            </a>
+            <a href="{% url 'hr:position_create' %}" class="btn btn-primary btn-sm">
+                + Add New Position
+            </a>
+        </div>
+    </div>
+
+    <!-- Positions Directory Table Card -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-semibold text-dark">Position Directory</h5>
+            <span class="badge bg-secondary">{{ positions|length }} Positions Configured</span>
+        </div>
+
+        <div class="card-body p-0">
+            {% if positions %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Position Title</th>
+                            <th>Department</th>
+                            <th>Min Headcount</th>
+                            <th>Max Headcount</th>
+                            <th>Current Staff</th>
+                            <th>Available Slots</th>
+                            <th>Reports To</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pos in positions %}
+                        <tr>
+                            <td class="fw-bold text-primary">
+                                {{ pos.title }}
+                            </td>
+                            <td>{{ pos.department }}</td>
+                            <td>{{ pos.min_employees }}</td>
+                            <td>{{ pos.max_employees }}</td>
+                            <td>
+                                <span class="badge {% if pos.current_headcount > pos.max_employees %}bg-danger{% elif pos.current_headcount >= pos.min_employees %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                                    {{ pos.current_headcount }} Active
+                                </span>
+                            </td>
+                            <td>
+                                {% if pos.available_slots == 0 %}
+                                    <span class="text-danger fw-semibold">Full Capacity</span>
+                                {% else %}
+                                    <span class="text-success fw-semibold">{{ pos.available_slots }} open</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if pos.reports_to %}
+                                    <small class="text-muted">{{ pos.reports_to.title }}</small>
+                                {% else %}
+                                    <small class="text-muted">-</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if pos.is_managerial %}
+                                    <span class="badge bg-info text-dark">Managerial</span>
+                                {% else %}
+                                    <span class="badge bg-light text-dark border">Standard</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if pos.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'hr:position_update' pos.pk %}" class="btn btn-outline-primary" title="Edit Position">
+                                        Edit
+                                    </a>
+                                    <a href="{% url 'hr:position_delete' pos.pk %}" class="btn btn-outline-danger" title="Delete Position">
+                                        Delete
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <h5 class="text-muted mb-2">No job positions defined yet.</h5>
+                <p class="text-muted small mb-3">Define your organization's roles and set minimum/maximum employee thresholds.</p>
+                <a href="{% url 'hr:position_create' %}" class="btn btn-primary btn-sm">
+                    + Add Your First Position
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

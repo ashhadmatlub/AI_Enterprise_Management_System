@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Employee Tasks | AEMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-2">
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h2 class="h3 mb-0 text-gray-800">Task Tracking</h2>
+      <p class="text-muted small mb-0">Track workload, productivity, and completion status of employee tasks.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{% url 'hr:home' %}" class="btn btn-outline-secondary btn-sm">
+        &larr; HR Dashboard
+      </a>
+      <a href="{% url 'hr:task_create' %}" class="btn btn-info text-white btn-sm">
+        + Assign New Task
+      </a>
+    </div>
+  </div>
+
+  <!-- Filter Card -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body py-2">
+      <form method="get" class="row g-2 align-items-center">
+        <div class="col-md-5">
+          <select name="status" class="form-select form-select-sm">
+            <option value="">All Statuses (To Do, In Progress, Completed)</option>
+            {% for code, label in status_choices %}
+              <option value="{{ code }}" {% if status_filter == code %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-5">
+          <select name="employee_id" class="form-select form-select-sm">
+            <option value="">All Employees</option>
+            {% for emp in employees %}
+              <option value="{{ emp.id }}" {% if employee_filter == emp.id|stringformat:"i" %}selected{% endif %}>
+                {{ emp.full_name }} ({{ emp.department }})
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+          <button type="submit" class="btn btn-secondary btn-sm w-100">Filter</button>
+          {% if status_filter or employee_filter %}
+            <a href="{% url 'hr:task_list' %}" class="btn btn-outline-secondary btn-sm">Reset</a>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Tasks Table -->
+  <div class="card shadow-sm border-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Task Title</th>
+            <th>Assigned Employee</th>
+            <th>Due Date</th>
+            <th>Status</th>
+            <th>Completed At</th>
+            <th class="text-end">Update Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for task in tasks %}
+            <tr>
+              <td>
+                <div class="fw-bold">{{ task.task_title }}</div>
+                {% if task.description %}
+                  <small class="text-muted">{{ task.description|truncatewords:10 }}</small>
+                {% endif %}
+              </td>
+              <td>
+                <a href="{% url 'hr:employee_detail' task.employee.pk %}" class="text-decoration-none fw-semibold text-primary">
+                  {{ task.employee.full_name }}
+                </a>
+                <div class="small text-muted">{{ task.employee.department }}</div>
+              </td>
+              <td>
+                {% if task.due_date %}
+                  <small class="text-dark">{{ task.due_date|date:"M d, Y" }}</small>
+                {% else %}
+                  <small class="text-muted">No deadline</small>
+                {% endif %}
+              </td>
+              <td>
+                {% if task.status == 'completed' %}
+                  <span class="badge bg-success">Completed</span>
+                {% elif task.status == 'in_progress' %}
+                  <span class="badge bg-info text-dark">In Progress</span>
+                {% else %}
+                  <span class="badge bg-secondary">To Do</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if task.completed_at %}
+                  <small class="text-success">{{ task.completed_at|date:"M d, Y H:i" }}</small>
+                {% else %}
+                  <small class="text-muted">-</small>
+                {% endif %}
+              </td>
+              <td class="text-end">
+                <form action="{% url 'hr:task_update_status' task.pk %}" method="post" class="d-inline-flex gap-1 justify-content-end">
+                  {% csrf_token %}
+                  <select name="status" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
+                    <option value="todo" {% if task.status == 'todo' %}selected{% endif %}>To Do</option>
+                    <option value="in_progress" {% if task.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                    <option value="completed" {% if task.status == 'completed' %}selected{% endif %}>Completed</option>
+                  </select>
+                </form>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-4 text-muted">
+                No tasks found.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

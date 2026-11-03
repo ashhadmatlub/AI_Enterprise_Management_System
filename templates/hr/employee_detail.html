@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}{{ employee.full_name }} | Employee Profile{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-2">
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- Top bar with Back and Actions -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <a href="{% url 'hr:employee_list' %}" class="text-decoration-none text-muted small">&larr; Back to Directory</a>
+      <h2 class="h3 mb-0 text-gray-800">{{ employee.full_name }}</h2>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{% url 'hr:task_create' %}?employee_id={{ employee.pk }}" class="btn btn-outline-info btn-sm">
+        + Assign Task
+      </a>
+      <a href="{% url 'hr:request_create' %}?employee_id={{ employee.pk }}" class="btn btn-outline-warning btn-sm">
+        + Add Request
+      </a>
+      <a href="{% url 'hr:training_enroll' %}?employee_id={{ employee.pk }}" class="btn btn-outline-success btn-sm">
+        + Enroll Training
+      </a>
+      <a href="{% url 'hr:employee_update' employee.pk %}" class="btn btn-primary btn-sm">
+        Edit Profile
+      </a>
+      <a href="{% url 'hr:employee_delete' employee.pk %}" class="btn btn-outline-danger btn-sm">
+        Delete
+      </a>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Left Column: Employee Info Card -->
+    <div class="col-lg-4">
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+          <div class="text-center pb-3 border-bottom">
+            <div class="rounded-circle bg-primary text-white d-inline-flex justify-content-center align-items-center mb-2" style="width: 70px; height: 70px; font-size: 1.8rem; font-weight: bold;">
+              {{ employee.full_name|slice:":1"|upper }}
+            </div>
+            <h5 class="fw-bold mb-0">{{ employee.full_name }}</h5>
+            <p class="text-muted small mb-2">{{ employee.job_title }}</p>
+            {% if employee.status == 'active' %}
+              <span class="badge bg-success">Active</span>
+            {% elif employee.status == 'on_leave' %}
+              <span class="badge bg-warning text-dark">On Leave</span>
+            {% else %}
+              <span class="badge bg-secondary">Inactive</span>
+            {% endif %}
+          </div>
+
+          <div class="pt-3">
+            <div class="mb-2">
+              <span class="text-muted small d-block">Department</span>
+              <strong>{{ employee.department }}</strong>
+            </div>
+            <div class="mb-2">
+              <span class="text-muted small d-block">Email</span>
+              <strong>{{ employee.email }}</strong>
+            </div>
+            <div class="mb-2">
+              <span class="text-muted small d-block">Salary</span>
+              <strong>PKR {{ employee.salary|floatformat:2 }}</strong>
+            </div>
+            <div class="mb-2">
+              <span class="text-muted small d-block">Joining Date</span>
+              <strong>{{ employee.join_date|date:"F d, Y" }}</strong>
+            </div>
+            <div>
+              <span class="text-muted small d-block">Profile Created</span>
+              <small class="text-muted">{{ employee.created_at|date:"M d, Y" }}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Assigned Tasks & Requests -->
+    <div class="col-lg-8">
+      <!-- Tasks Section -->
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+          <h6 class="m-0 fw-bold text-dark">Assigned Tasks ({{ tasks|length }})</h6>
+          <a href="{% url 'hr:task_create' %}?employee_id={{ employee.pk }}" class="btn btn-sm btn-outline-info">+ Add Task</a>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Task Title</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th class="text-end">Update</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for task in tasks %}
+                <tr>
+                  <td>
+                    <div class="fw-semibold">{{ task.task_title }}</div>
+                    {% if task.description %}
+                      <small class="text-muted">{{ task.description|truncatewords:8 }}</small>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <small class="text-muted">{{ task.due_date|date:"M d, Y"|default:"No due date" }}</small>
+                  </td>
+                  <td>
+                    {% if task.status == 'completed' %}
+                      <span class="badge bg-success">Completed</span>
+                    {% elif task.status == 'in_progress' %}
+                      <span class="badge bg-info text-dark">In Progress</span>
+                    {% else %}
+                      <span class="badge bg-secondary">To Do</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-end">
+                    <form action="{% url 'hr:task_update_status' task.pk %}" method="post" class="d-inline-flex gap-1">
+                      {% csrf_token %}
+                      <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="todo" {% if task.status == 'todo' %}selected{% endif %}>To Do</option>
+                        <option value="in_progress" {% if task.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                        <option value="completed" {% if task.status == 'completed' %}selected{% endif %}>Completed</option>
+                      </select>
+                    </form>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="4" class="text-center py-3 text-muted">No tasks assigned to this employee.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Requests Section -->
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+          <h6 class="m-0 fw-bold text-dark">Requests ({{ requests|length }})</h6>
+          <a href="{% url 'hr:request_create' %}?employee_id={{ employee.pk }}" class="btn btn-sm btn-outline-warning">+ Add Request</a>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th class="text-end">Manage</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for req in requests %}
+                <tr>
+                  <td class="fw-semibold">{{ req.get_request_type_display }}</td>
+                  <td><small class="text-muted">{{ req.description|truncatewords:10 }}</small></td>
+                  <td>
+                    {% if req.status == 'approved' %}
+                      <span class="badge bg-success">Approved</span>
+                    {% elif req.status == 'pending' %}
+                      <span class="badge bg-warning text-dark">Pending</span>
+                    {% else %}
+                      <span class="badge bg-danger">Rejected</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-end">
+                    <form action="{% url 'hr:request_update_status' req.pk %}" method="post" class="d-inline-flex gap-1">
+                      {% csrf_token %}
+                      <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="pending" {% if req.status == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="approved" {% if req.status == 'approved' %}selected{% endif %}>Approved</option>
+                        <option value="rejected" {% if req.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                      </select>
+                    </form>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="4" class="text-center py-3 text-muted">No requests submitted by this employee.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Training Enrollments Section -->
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+          <h6 class="m-0 fw-bold text-dark">Training Enrollments ({{ enrollments|length }})</h6>
+          <a href="{% url 'hr:training_enroll' %}?employee_id={{ employee.pk }}" class="btn btn-sm btn-outline-success">+ Enroll</a>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Program Title</th>
+                <th>Instructor</th>
+                <th>Dates</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for enr in enrollments %}
+                <tr>
+                  <td class="fw-semibold">{{ enr.program.title }}</td>
+                  <td>{{ enr.program.instructor }}</td>
+                  <td><small class="text-muted">{{ enr.program.start_date|date:"M d" }} - {{ enr.program.end_date|date:"M d, Y" }}</small></td>
+                  <td><span class="badge bg-primary">{{ enr.get_status_display }}</span></td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="4" class="text-center py-3 text-muted">Not enrolled in any training programs.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

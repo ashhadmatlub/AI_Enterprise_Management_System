@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}{{ action }} Job Position | AEMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-2">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold mb-1">{{ action }} Job Position</h1>
+            <p class="text-muted mb-0">Configure role requirements, organizational hierarchy, and employee headcount quotas.</p>
+        </div>
+        <a href="{% url 'hr:positions' %}" class="btn btn-outline-secondary btn-sm">
+            &larr; Back to Positions
+        </a>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h5 class="mb-0 fw-semibold text-primary">Position Configuration</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger py-2">
+                                {{ form.non_field_errors }}
+                            </div>
+                        {% endif %}
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.title.id_for_label }}" class="form-label fw-semibold">Job Title *</label>
+                                {{ form.title }}
+                                {% if form.title.errors %}
+                                    <div class="text-danger small mt-1">{{ form.title.errors|striptags }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.department.id_for_label }}" class="form-label fw-semibold">Department *</label>
+                                {{ form.department }}
+                                {% if form.department.errors %}
+                                    <div class="text-danger small mt-1">{{ form.department.errors|striptags }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.min_employees.id_for_label }}" class="form-label fw-semibold">Minimum Planned Headcount</label>
+                                {{ form.min_employees }}
+                                <small class="text-muted">Target minimum staffing level</small>
+                                {% if form.min_employees.errors %}
+                                    <div class="text-danger small mt-1">{{ form.min_employees.errors|striptags }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.max_employees.id_for_label }}" class="form-label fw-semibold">Maximum Approved Headcount</label>
+                                {{ form.max_employees }}
+                                <small class="text-muted">Ceiling cap for this position</small>
+                                {% if form.max_employees.errors %}
+                                    <div class="text-danger small mt-1">{{ form.max_employees.errors|striptags }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.reports_to.id_for_label }}" class="form-label fw-semibold">Reports To (Parent Position)</label>
+                            {{ form.reports_to }}
+                            <small class="text-muted">Optional: select the higher position this role reports to</small>
+                            {% if form.reports_to.errors %}
+                                <div class="text-danger small mt-1">{{ form.reports_to.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row g-3 mb-4 pt-2">
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    {{ form.is_managerial }}
+                                    <label class="form-check-label fw-semibold" for="{{ form.is_managerial.id_for_label }}">
+                                        Managerial Role
+                                    </label>
+                                </div>
+                                <small class="text-muted">Position oversees team members</small>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    {{ form.is_active }}
+                                    <label class="form-check-label fw-semibold" for="{{ form.is_active.id_for_label }}">
+                                        Active Position
+                                    </label>
+                                </div>
+                                <small class="text-muted">Open for assignments and hiring</small>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+                            <a href="{% url 'hr:positions' %}" class="btn btn-outline-secondary px-4">Cancel</a>
+                            <button type="submit" class="btn btn-primary px-4">
+                                {% if action == 'Add' %}Save Position{% else %}Update Position{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

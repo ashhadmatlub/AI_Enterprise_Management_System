@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Training Programs | AEMS{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-2">
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="fw-bold mb-1">Training & Development</h1>
+      <p class="text-muted mb-0">Corporate skill development, workshops, and employee enrollments.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{% url 'hr:home' %}" class="btn btn-outline-secondary btn-sm">
+        &larr; HR Dashboard
+      </a>
+      <a href="{% url 'hr:training_enroll' %}" class="btn btn-outline-success btn-sm">
+        + Enroll Employee
+      </a>
+      <a href="{% url 'hr:training_create' %}" class="btn btn-success btn-sm">
+        + Add New Program
+      </a>
+    </div>
+  </div>
+
+  <!-- Programs Grid -->
+  <div class="row g-4">
+    {% for prog in programs %}
+      <div class="col-md-6 col-lg-4">
+        <div class="card shadow-sm border-0 h-100 d-flex flex-column justify-content-between">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <h5 class="fw-bold text-dark mb-0">{{ prog.title }}</h5>
+              {% if prog.is_active %}
+                <span class="badge bg-success">Active</span>
+              {% else %}
+                <span class="badge bg-secondary">Inactive</span>
+              {% endif %}
+            </div>
+            <p class="text-muted small mb-3">{{ prog.description|default:"No description provided." }}</p>
+
+            <div class="mb-2">
+              <small class="text-muted d-block">Instructor</small>
+              <strong class="small">{{ prog.instructor }}</strong>
+            </div>
+
+            <div class="mb-2">
+              <small class="text-muted d-block">Schedule</small>
+              <span class="small">{{ prog.start_date|date:"M d, Y" }} &rarr; {{ prog.end_date|date:"M d, Y" }}</span>
+            </div>
+
+            <div>
+              <small class="text-muted d-block">Capacity & Enrollment</small>
+              <span class="badge bg-light text-dark border">
+                {{ prog.enrollments.count }} / {{ prog.max_participants }} Enrolled
+              </span>
+            </div>
+          </div>
+
+          <div class="card-footer bg-white border-top-0 pt-0 pb-3">
+            <a href="{% url 'hr:training_enroll' %}?program_id={{ prog.pk }}" class="btn btn-outline-success btn-sm w-100">
+              Enroll Staff Member &rarr;
+            </a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12">
+        <div class="card shadow-sm border-0 p-5 text-center">
+          <h5 class="text-muted mb-2">No training programs scheduled.</h5>
+          <p class="text-muted small mb-3">Add professional development programs and track staff certifications.</p>
+          <div>
+            <a href="{% url 'hr:training_create' %}" class="btn btn-success btn-sm">
+              + Add First Training Program
+            </a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}
